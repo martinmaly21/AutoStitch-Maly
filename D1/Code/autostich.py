@@ -1,4 +1,14 @@
-import cv2 as cv
+import cv2
+import glob
+import os
+from matplotlib import pyplot as plt
+import numpy as num
+
+class SIFTImage:
+    def __init__(self, image, keypoints, descriptors):
+        self.image = image
+        self.keypoints = keypoints
+        self.descriptors = descriptors
 
 # 1. Match Features
 
@@ -12,7 +22,39 @@ import cv2 as cv
 # match. Keep in mind that each image will only overlap with a small number of other images in the set, so ideally this match 
 # metric will score high for the images that do have overlap, and low otherwise.
 
-print('hello world')
+mySIFTInstance = cv2.SIFT_create()
+
+imagePath = os.path.expanduser('~/Autostich-Maly/D1/Images/Mush/*.jpg')  #CAN CHANGE DEPENDING ON TEST IMAGES
+
+images = [cv2.imread(file) for file in glob.glob(imagePath)]
+
+
+siftImages = []
+
+for image in images:
+    (keypoints, descriptors) = mySIFTInstance.detectAndCompute(image, None)
+
+    siftImage = SIFTImage(
+        image,
+        keypoints,
+        descriptors
+    )
+
+    siftImages.append(siftImage)
+
+testSiftImage = siftImages[0].image
+testSiftImageKeyPoint = siftImages[0].keypoints
+
+imageHeight, imageWidth, imageChannels = testSiftImage.shape
+blankImage = num.zeros((imageHeight, imageWidth, imageChannels), num.uint8)
+testSiftImageOutput = cv2.drawKeypoints(testSiftImage, testSiftImageKeyPoint, blankImage)
+plt.imshow(testSiftImageOutput)
+
+
+#this stores an array of comparisons that have aalready been performed 
+#in order to prevent 'b' being tested with 'a', if 'a' had already been tested with 'b'
+testedImagePairs = []
+
 
 
 # 2. Estimate Transformation
